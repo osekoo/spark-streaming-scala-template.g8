@@ -8,12 +8,12 @@ object Main {
 
     def main(args: Array[String]): Unit = {
       val spark: SparkSession = SparkSession.builder()
-        .appName(s"$name$")
+        .appName("$name$")
         .getOrCreate()
 
       // defining input stream data type (fields of kafka event)
       val definitionSchema = new StructType()
-        .add(StructField("<field>", StringType, nullable = true))
+        .add(StructField("<input_field>", StringType, nullable = true))
 
       // reading data from kafka topic
       val inputStream = spark.readStream
@@ -30,9 +30,9 @@ object Main {
       // perform transformation here
       val outputDf = inputStream.selectExpr("cast(value as string)")
         .select(from_json(col("value"), definitionSchema).as("data"))
-        .select(col("data.<field>"),
-          transformationUdf(col("data.<field>")) // applying transformation on your <field>
-            .as("<new_field>")
+        .select(col("data.<input_field>"),
+          transformationUdf(col("data.<input_field>")) // applying transformation on your <field>
+            .as("<output_field>")
         )
 
       // displaying the transformed data to the console for debug purpose
@@ -44,9 +44,8 @@ object Main {
 
       // sending the transformed data to kafka
       val kafkaDf = outputDf
-        .select(to_json(struct(
-          col("<field1>"),
-          col("<new_field>>"))).as("value")) // compute a mandatory field `value` for kafka
+        .select(
+          to_json(struct(col("<output_field>"))).as("value")) // compute a mandatory field `value` for kafka
         .writeStream
         .outputMode("append")
         .format("kafka")
