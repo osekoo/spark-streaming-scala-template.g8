@@ -4,9 +4,16 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 
 object Main {
+  Logger.getLogger("org").setLevel(Level.OFF)
+  Logger.getLogger("akka").setLevel(Level.OFF)
+
+  @transient private lazy val logger: Logger = Logger.getLogger("\$")
+
   def main(args: Array[String]): Unit = {
 
     def main(args: Array[String]): Unit = {
+      logger.info("Running `$name$`...")
+
       val spark: SparkSession = SparkSession.builder()
         .appName("$name$")
         .getOrCreate()

@@ -34,5 +34,7 @@ services:
       - '\${SPARK_APP_PORT:-4040}:\${SPARK_APP_PORT:-4040}'
     volumes:
       - "./:/app"
+      - "~/.ivy2:/root/.ivy2"
+      - "~/.sbt:/root/.sbt"
     depends_on:
       - spark-worker
